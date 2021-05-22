@@ -20,8 +20,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "users")
+@Entity(name = "users")
+@Table
 @EntityListeners(AuditingEntityListener.class)
 @Data
 @NoArgsConstructor
@@ -42,5 +42,9 @@ public class User {
 	@Generated(GenerationTime.INSERT)
 	@Column(updatable = false, nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
 	private Timestamp createdAt;
+	
+	public void deactivate() {
+		this.deactivated = true;
+	}
 
 }

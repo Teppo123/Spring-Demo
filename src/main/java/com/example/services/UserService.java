@@ -3,18 +3,20 @@ package com.example.services;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.example.dto.UserTO;
+import com.example.dto.UserDTO;
 
 public interface UserService {
 
-	List<UserTO> getUsers();
+	List<UserDTO> getUsers();
 
-	UserTO saveUser(UserTO user);
+	UserDTO saveUser(UserDTO user);
 	
-	UserTO getUserById(long id);
+	UserDTO getUserById(long id);
 	
-	UserTO getUserByName(String firstName, String lastName);
+	UserDTO getUserByName(String firstName, String lastName);
 	
-	List<UserTO> getUsersBornBefore(LocalDate date);
+	List<UserDTO> getUsersBornBefore(LocalDate date);
+
+	void deleteUser(long id);
 	
 }

@@ -1,5 +1,5 @@
-h2:
-  implicitRelativePath: true
+#h2:
+#  implicitRelativePath: true
 server:
   port: 8123
 spring:
@@ -23,4 +23,4 @@ spring:
         format_sql: true
         validator:
           apply_to_ddl: false
-#    show-sql: true
+    show-sql: true

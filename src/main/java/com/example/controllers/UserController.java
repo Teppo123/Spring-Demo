@@ -3,6 +3,10 @@ package com.example.controllers;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.dto.UserTO;
+import com.example.dto.UserDTO;
 import com.example.services.UserService;
 
 @Controller
@@ -29,33 +33,54 @@ public class UserController {
 	protected static final String PARAM_LAST_NAME = "lastName";
 	protected static final String PARAM_DATE = "date";
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
+
 	@Autowired
 	private UserService userService;
 
 	@GetMapping("/users")
-	public ResponseEntity<List<UserTO>> getUsers() {
+	public ResponseEntity<List<UserDTO>> getUsers() {
+		LOGGER.info("entered /users");
 		return ResponseEntity.ok(this.userService.getUsers());
 	}
 
 	@GetMapping("/user/{id}")
-	public ResponseEntity<UserTO> getUser(@PathVariable(name = PARAM_ID) long id) {
+	public ResponseEntity<UserDTO> getUser(@PathVariable(name = PARAM_ID) long id) {
+		LOGGER.info(String.format("entered /users/%s", id));
 		return ResponseEntity.ok(this.userService.getUserById(id));
 	}
 
 	@GetMapping("/user-by-name")
-	public ResponseEntity<UserTO> getUserByName(@RequestParam(name = PARAM_FIRST_NAME) String firstName,
+	public ResponseEntity<UserDTO> getUserByName(@RequestParam(name = PARAM_FIRST_NAME) String firstName,
 			@RequestParam(name = PARAM_LAST_NAME) String lastName) {
+		LOGGER.info(String.format("entered /user-by-name/ with firstName = \"%s\" and lastName = \"%s\"", firstName,
+				lastName));
 		return ResponseEntity.ok(this.userService.getUserByName(firstName, lastName));
 	}
 
 	@GetMapping("/user-born-before")
-	public ResponseEntity<List<UserTO>> getUsersBornBefore(@RequestParam(name = PARAM_DATE) LocalDate date) {
+	public ResponseEntity<List<UserDTO>> getUsersBornBefore(@RequestParam(name = PARAM_DATE) LocalDate date) {
+		LOGGER.info(String.format("entered /user-born-before/ with %s", date));
 		return ResponseEntity.ok(this.userService.getUsersBornBefore(date));
 	}
 
 	@PostMapping("/save-user")
-	public ResponseEntity<UserTO> saveUser(@Validated @RequestBody UserTO to) {
+	public ResponseEntity<UserDTO> saveUser(@Validated @RequestBody UserDTO to) {
+		LOGGER.info(String.format("entered /save-user/ with %s", to));
 		return new ResponseEntity<>(this.userService.saveUser(to), HttpStatus.CREATED);
+	}
+
+	@PostMapping("/delete-user/{id}")
+	public ResponseEntity<String> deleteUser(@PathVariable(name = PARAM_ID) long id) {
+		LOGGER.info(String.format("entered /delete-user/%s", id));
+		try {
+			this.userService.deleteUser(id);
+			return ResponseEntity.ok("User deleted.");
+		} catch (EntityNotFoundException e) {
+			return new ResponseEntity<>(String.format("User #%s not found.", id), HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }
