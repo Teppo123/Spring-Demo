@@ -8,7 +8,7 @@ public class UserDTOTransformer {
 
 	public UserDTO transform(User entity) {
 		return entity == null ? null
-				: UserDTO.builder().birthDate(CustomDateUtils.toLocalDate(entity.getBirthDate()))
+				: UserDTO.builder().birthDate(CustomDateUtils.toLocalDate(entity.getBirthDate())).id(entity.getId())
 						.firstName(entity.getFirstName()).lastName(entity.getLastName())
 						.creationTime(CustomDateUtils.toLocalDateTime(entity.getCreatedAt())).build();
 	}

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -23,8 +24,12 @@ import com.example.dto.UserDTO;
 import com.example.services.UserService;
 
 @Controller
-@RequestMapping(UserController.ROOT_PATH)
+@RequestMapping(path = UserController.ROOT_PATH
+//, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE
+)
 public class UserController {
+
+	// http://localhost:8123/swagger-ui/
 
 	public static final String ROOT_PATH = "/user-controller"; // NOSONAR
 
@@ -64,11 +69,19 @@ public class UserController {
 		return ResponseEntity.ok(this.userService.getUsersBornBefore(date));
 	}
 
-	@PostMapping("/save-user")
+	@PostMapping(path = "/save-user", consumes = MediaType.APPLICATION_JSON_VALUE
+//			, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
+	)
 	public ResponseEntity<UserDTO> saveUser(@Validated @RequestBody UserDTO to) {
 		LOGGER.info(String.format("entered /save-user/ with %s", to));
 		return new ResponseEntity<>(this.userService.saveUser(to), HttpStatus.CREATED);
 	}
+
+//	@PostMapping(path = "/save-user", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+//	public ResponseEntity<UserDTO> saveUserFormEncoded(UserDTO to) {
+//		LOGGER.info(String.format("entered /save-user/ with %s", to));
+//		return new ResponseEntity<>(this.userService.saveUser(to), HttpStatus.CREATED);
+//	}
 
 	@PostMapping("/delete-user/{id}")
 	public ResponseEntity<String> deleteUser(@PathVariable(name = PARAM_ID) long id) {

@@ -24,3 +24,9 @@ spring:
         validator:
           apply_to_ddl: false
     show-sql: true
+    
+logging:
+  level:
+    com:
+      example: DEBUG
+#    root: INFO
