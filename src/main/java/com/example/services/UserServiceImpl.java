@@ -41,7 +41,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDTO getUserByName(String firstName, String lastName) {
+	public List<UserDTO> getUsersByName(String firstName, String lastName) {
+		if (StringUtils.is)
+		
 		return this.userRepository.findByFirstNameAndLastNameAndDeactivatedFalse(firstName, lastName)
 				.map(new UserDTOTransformer()::transform).orElse(null);
 	}

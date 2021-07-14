@@ -29,8 +29,6 @@ import com.example.services.UserService;
 )
 public class UserController {
 
-	// http://localhost:8123/swagger-ui/
-
 	public static final String ROOT_PATH = "/user-controller"; // NOSONAR
 
 	protected static final String PARAM_ID = "id";
