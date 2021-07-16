@@ -13,7 +13,7 @@ public interface UserService {
 	
 	UserDTO getUserById(long id);
 	
-	UserDTO getUserByName(String firstName, String lastName);
+	List<UserDTO> getUsersByName(String firstName, String lastName);
 	
 	List<UserDTO> getUsersBornBefore(LocalDate date);
 

@@ -12,7 +12,11 @@ public interface UserRepository extends CrudRepository<User, Long> {
 	
 	List<User> findAllByDeactivatedFalse();
 	
-	Optional<User> findByFirstNameAndLastNameAndDeactivatedFalse(String firstName, String lastName);	
+	Optional<User> findByFirstNameAndLastNameAndDeactivatedFalse(String firstName, String lastName);
+	
+	List<User> findByFirstNameAndDeactivatedFalse(String firstName);
+	
+	List<User> findByLastNameAndDeactivatedFalse(String lastName);
 	
 	List<User> findByBirthDateBeforeAndDeactivatedFalse(Date date);
 	

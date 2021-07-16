@@ -19,7 +19,7 @@ public class SwaggerConfig {
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any())
-				.paths(PathSelectors.regex(UserController.ROOT_PATH + ".*")).build();
+				.paths(PathSelectors.regex(UserController.PATH_ROOT + ".*")).build();
 	}
 
 }

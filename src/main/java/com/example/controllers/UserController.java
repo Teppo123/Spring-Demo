@@ -24,12 +24,15 @@ import com.example.dto.UserDTO;
 import com.example.services.UserService;
 
 @Controller
-@RequestMapping(path = UserController.ROOT_PATH
+@RequestMapping(path = UserController.PATH_ROOT
 //, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE
 )
 public class UserController {
 
-	public static final String ROOT_PATH = "/user-controller"; // NOSONAR
+	public static final String PATH_ROOT = "/user-controller"; // NOSONAR
+
+	protected static final String PATH_GET_USER_BY_ID = "/user/{id}"; // NOSONAR
+	protected static final String PATH_SAVE_USER = "/save-user"; // NOSONAR
 
 	protected static final String PARAM_ID = "id";
 	protected static final String PARAM_FIRST_NAME = "firstName";
@@ -47,18 +50,18 @@ public class UserController {
 		return ResponseEntity.ok(this.userService.getUsers());
 	}
 
-	@GetMapping("/user/{id}")
+	@GetMapping(UserController.PATH_GET_USER_BY_ID)
 	public ResponseEntity<UserDTO> getUser(@PathVariable(name = PARAM_ID) long id) {
 		LOGGER.info(String.format("entered /users/%s", id));
 		return ResponseEntity.ok(this.userService.getUserById(id));
 	}
 
 	@GetMapping("/user-by-name")
-	public ResponseEntity<UserDTO> getUserByName(@RequestParam(name = PARAM_FIRST_NAME) String firstName,
+	public ResponseEntity<List<UserDTO>> getUserByName(@RequestParam(name = PARAM_FIRST_NAME) String firstName,
 			@RequestParam(name = PARAM_LAST_NAME) String lastName) {
 		LOGGER.info(String.format("entered /user-by-name/ with firstName = \"%s\" and lastName = \"%s\"", firstName,
 				lastName));
-		return ResponseEntity.ok(this.userService.getUserByName(firstName, lastName));
+		return ResponseEntity.ok(this.userService.getUsersByName(firstName, lastName));
 	}
 
 	@GetMapping("/user-born-before")
@@ -67,7 +70,7 @@ public class UserController {
 		return ResponseEntity.ok(this.userService.getUsersBornBefore(date));
 	}
 
-	@PostMapping(path = "/save-user", consumes = MediaType.APPLICATION_JSON_VALUE
+	@PostMapping(path = UserController.PATH_SAVE_USER, consumes = MediaType.APPLICATION_JSON_VALUE
 //			, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
 	)
 	public ResponseEntity<UserDTO> saveUser(@Validated @RequestBody UserDTO to) {

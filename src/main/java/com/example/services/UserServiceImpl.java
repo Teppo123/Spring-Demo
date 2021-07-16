@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import com.example.dto.transformers.UserDTOTransformer;
 import com.example.repositories.UserRepository;
 import com.example.repositories.entities.User;
 import com.example.repositories.entities.transformers.UserTransformer;
+import com.google.common.collect.Lists;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -42,10 +44,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserDTO> getUsersByName(String firstName, String lastName) {
-		if (StringUtils.is)
-		
-		return this.userRepository.findByFirstNameAndLastNameAndDeactivatedFalse(firstName, lastName)
-				.map(new UserDTOTransformer()::transform).orElse(null);
+		if (StringUtils.isAllBlank(firstName, lastName)) {
+			return getUsers();
+		}
+		if (StringUtils.isNoneBlank(firstName, lastName)) {
+			return this.userRepository.findByFirstNameAndLastNameAndDeactivatedFalse(firstName, lastName)
+					.map(new UserDTOTransformer()::transform).map(Lists::newArrayList).orElseGet(Lists::newArrayList);
+		}
+		if (StringUtils.isBlank(firstName)) {
+			return this.userRepository.findByLastNameAndDeactivatedFalse(lastName).stream()
+					.map(new UserDTOTransformer()::transform).collect(Collectors.toList());
+		}
+		return this.userRepository.findByFirstNameAndDeactivatedFalse(firstName).stream()
+				.map(new UserDTOTransformer()::transform).collect(Collectors.toList());
 	}
 
 	@Override
