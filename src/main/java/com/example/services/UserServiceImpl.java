@@ -39,7 +39,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDTO getUserById(long id) {
-		return this.userRepository.findById(id).map(new UserDTOTransformer()::transform).orElse(null);
+		return this.userRepository.findByIdAndDeactivatedFalse(id).map(new UserDTOTransformer()::transform)
+				.orElse(null);
 	}
 
 	@Override

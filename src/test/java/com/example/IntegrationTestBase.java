@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,34 +31,41 @@ public class IntegrationTestBase {
 	@Autowired
 	private MockMvc mockMvc;
 
-	public <T> T getRequestResponse(HttpMethod method, String url, Object requestBody, Class<T> clazz)
-			throws Exception {
-		return getRequestResponse(method, null, url, requestBody, null, clazz);
+	public <T> T getRequestResponse(HttpMethod method, String url, Object requestBody,
+			Map<String, String> requestParams, Class<T> clazz) throws Exception {
+		return getRequestResponse(method, null, url, requestBody, requestParams, null, clazz);
 	}
 
-	public <T> T getRequestResponse(HttpMethod method, String url, Object requestBody, String pathParam, Class<T> clazz)
-			throws Exception {
-		return getRequestResponse(method, null, url, requestBody, pathParam, clazz);
+	public <T> T getRequestResponse(HttpMethod method, String url, Object requestBody,
+			Map<String, String> requestParams, String pathParam, Class<T> clazz) throws Exception {
+		return getRequestResponse(method, null, url, requestBody, requestParams, pathParam, clazz);
 	}
 
 	public <T> T getRequestResponse(HttpMethod method, HttpStatus status, String url, Object requestBody,
-			String pathParam, Class<T> clazz) throws Exception {
-		ResultActions resultActions = perform(method, status, url, requestBody, pathParam);
-		return getObjectMapper().readValue(resultActions.andReturn().getResponse().getContentAsString(), clazz);
+			Map<String, String> requestParams, String pathParam, Class<T> clazz) throws Exception {
+		ResultActions resultActions = perform(method, status, url, requestBody, pathParam, requestParams);
+		String response = resultActions.andReturn().getResponse().getContentAsString();
+		if (response == null || (response instanceof String && StringUtils.isBlank(response))) {
+			return null;
+		}
+		return clazz.equals(String.class) ? (T) response : getObjectMapper().readValue(response, clazz);
 	}
 
-	public void doRequest(HttpMethod method, HttpStatus status, String url, Object requestBody, String pathParam)
-			throws Exception {
-		perform(method, status, url, requestBody, pathParam);
+	public void doRequest(HttpMethod method, HttpStatus status, String url, Object requestBody, String pathParam,
+			Map<String, String> requestParams) throws Exception {
+		perform(method, status, url, requestBody, pathParam, requestParams);
 	}
 
 	private ResultActions perform(HttpMethod method, HttpStatus status, String url, Object requestBody,
-			String pathParam) throws Exception {
+			String pathParam, Map<String, String> requestParams) throws Exception {
 		MockHttpServletRequestBuilder requestBuilder = StringUtils.isNotBlank(pathParam)
 				? MockMvcRequestBuilders.request(method, url, pathParam)
 				: MockMvcRequestBuilders.request(method, url);
 		if (requestBody != null) {
 			requestBuilder.content(toJsonString(requestBody)).contentType(MediaType.APPLICATION_JSON);
+		}
+		if (requestParams != null) {
+			requestParams.entrySet().forEach(param -> requestBuilder.param(param.getKey(), param.getValue()));
 		}
 		return this.mockMvc.perform(requestBuilder.accept(MediaType.APPLICATION_JSON)).andDo(print())
 				.andExpect(status == null ? status().is2xxSuccessful() : status().is(status.value()));
