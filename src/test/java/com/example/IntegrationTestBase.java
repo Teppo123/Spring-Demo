@@ -23,13 +23,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class IntegrationTestBase {
 
 	public final static UserDTO MOCK_USER_1 = UserDTO.builder().firstName("etunimi1").lastName("sukunimi1")
-			.birthDate(LocalDate.now()).creationTime(LocalDateTime.now().minusDays(1)).build();
+			.birthDate(LocalDate.now().minusDays(4)).creationTime(LocalDateTime.now().minusDays(1)).build();
 
 	public final static UserDTO MOCK_USER_2 = UserDTO.builder().firstName("etunimi2").lastName("sukunimi2")
-			.birthDate(LocalDate.now()).creationTime(LocalDateTime.now().minusDays(2)).build();
+			.birthDate(LocalDate.now().minusDays(1)).creationTime(LocalDateTime.now().minusDays(2)).build();
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	public <T> T getRequestResponse(HttpMethod method, String url, Object requestBody,
 			Map<String, String> requestParams, Class<T> clazz) throws Exception {
@@ -48,7 +51,7 @@ public class IntegrationTestBase {
 		if (response == null || (response instanceof String && StringUtils.isBlank(response))) {
 			return null;
 		}
-		return clazz.equals(String.class) ? (T) response : getObjectMapper().readValue(response, clazz);
+		return clazz.equals(String.class) ? (T) response : this.objectMapper.readValue(response, clazz);
 	}
 
 	public void doRequest(HttpMethod method, HttpStatus status, String url, Object requestBody, String pathParam,
@@ -71,18 +74,9 @@ public class IntegrationTestBase {
 				.andExpect(status == null ? status().is2xxSuccessful() : status().is(status.value()));
 	}
 
-	private ObjectMapper objectMapper = null;
-
-	private ObjectMapper getObjectMapper() {
-		if (this.objectMapper == null) {
-			this.objectMapper = new ObjectMapper();
-		}
-		return this.objectMapper;
-	}
-
 	private String toJsonString(final Object obj) {
 		try {
-			return getObjectMapper().writeValueAsString(obj);
+			return this.objectMapper.writeValueAsString(obj);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -8,6 +8,7 @@ import javax.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,7 @@ import com.example.dto.UserDTO;
 import com.example.services.UserService;
 
 @Controller
-@RequestMapping(path = UserController.PATH_ROOT
-//, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE
-)
+@RequestMapping(path = UserController.PATH_ROOT)
 public class UserController {
 
 	public static final String PATH_ROOT = "/user-controller"; // NOSONAR
@@ -42,7 +41,7 @@ public class UserController {
 	protected static final String PARAM_FIRST_NAME = "firstName";
 	protected static final String PARAM_LAST_NAME = "lastName";
 	protected static final String PARAM_DATE = "date";
-	
+
 	protected static final String MSG_DELETE_USER_SUCCESS = "User deleted.";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
@@ -71,24 +70,17 @@ public class UserController {
 	}
 
 	@GetMapping(UserController.PATH_USERS_BORN_BEFORE)
-	public ResponseEntity<List<UserDTO>> getUsersBornBefore(@RequestParam(name = PARAM_DATE) LocalDate date) {
+	public ResponseEntity<List<UserDTO>> getUsersBornBefore(
+			@RequestParam(name = PARAM_DATE) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		LOGGER.info(String.format("entered /user-born-before/ with %s", date));
 		return ResponseEntity.ok(this.userService.getUsersBornBefore(date));
 	}
 
-	@PostMapping(path = UserController.PATH_SAVE_USER, consumes = MediaType.APPLICATION_JSON_VALUE
-//			, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE
-	)
+	@PostMapping(path = UserController.PATH_SAVE_USER, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UserDTO> saveUser(@Validated @RequestBody UserDTO to) {
 		LOGGER.info(String.format("entered /save-user/ with %s", to));
 		return new ResponseEntity<>(this.userService.saveUser(to), HttpStatus.CREATED);
 	}
-
-//	@PostMapping(path = "/save-user", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-//	public ResponseEntity<UserDTO> saveUserFormEncoded(UserDTO to) {
-//		LOGGER.info(String.format("entered /save-user/ with %s", to));
-//		return new ResponseEntity<>(this.userService.saveUser(to), HttpStatus.CREATED);
-//	}
 
 	@PostMapping(UserController.PATH_DELETE_USER)
 	public ResponseEntity<String> deleteUser(@PathVariable(name = PARAM_ID) long id) {

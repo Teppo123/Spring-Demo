@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -108,7 +110,29 @@ public class UserControllerITestIT extends IntegrationTestBase {
 
 	@Test
 	public void testGetSavedUserByBornBefore() throws Exception {
-		// TODO
+		UserDTO savedUser1 = saveUser(MOCK_USER_1);
+		UserDTO savedUser2 = saveUser(MOCK_USER_2);
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+		List<UserDTO> foundUsers = Arrays.asList(getRequestResponse(HttpMethod.GET,
+				UserController.PATH_ROOT + UserController.PATH_USERS_BORN_BEFORE, null,
+				ImmutableMap.of(UserController.PARAM_DATE, formatter.format(LocalDate.now().minusDays(2))), null,
+				UserDTO[].class));
+
+		assertThat(foundUsers).isNotNull().isNotEmpty().hasSize(1);
+		assertThat(foundUsers.get(0).getFirstName()).isEqualTo(savedUser1.getFirstName());
+
+		foundUsers = Arrays.asList(getRequestResponse(HttpMethod.GET,
+				UserController.PATH_ROOT + UserController.PATH_USERS_BORN_BEFORE, null,
+				ImmutableMap.of(UserController.PARAM_DATE, formatter.format(LocalDate.now())), null, UserDTO[].class));
+
+		assertThat(foundUsers).isNotNull().isNotEmpty().hasSize(2);
+		assertThat(foundUsers.get(1).getFirstName()).isEqualTo(savedUser2.getFirstName());
+
+		assertThat(getRequestResponse(HttpMethod.GET, UserController.PATH_ROOT + UserController.PATH_USERS_BORN_BEFORE,
+				null, ImmutableMap.of(UserController.PARAM_DATE, formatter.format(LocalDate.now().minusDays(4))), null,
+				UserDTO[].class)).isEmpty();
 	}
 
 	private UserDTO saveUser(UserDTO userDTO) throws Exception {

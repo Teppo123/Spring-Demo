@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserDTO> getUsersByName(String firstName, String lastName) {
+		// some checks that enable searching without some or any of the parameters
 		if (StringUtils.isAllBlank(firstName, lastName)) {
 			return getUsers();
 		}
